@@ -1,11 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="/css/login-register.css">
 </head>
 <body>
-    
+    <div class="login-container">
+        <h1>Login</h1>
+        <br>
+        <form>
+            <input id="email" type="email" placeholder="Email" required autocomplete="current-email">
+            <input id="password" type="password" placeholder="Password" required autocomplete="current-password">
+        </form>
+        <br>
+        <div class="btn-box">
+            <button>Login</button>
+            <button id="openModalBtn">Register</button>
+        </div>
+    </div>
+
+    <div id="openRegister" class="register">
+        <div class="register-content">
+            <h1>Register</h1>
+            <br>
+            <form>
+                <input type="signup-email" placeholder="Email" required autocomplete="signup-email">
+                <input type="signup-password" placeholder="Password" required autocomplete="signup-password">
+                <input type="confirm-signup-password" placeholder="Confirm Password" required autocomplete="confirm-password">
+            </form>
+            <br>
+            <div class="btn-box">
+                <button id="closeModalBtn">Cancel</button>
+                <button>Register</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        var register = document.getElementById("openRegister");
+        var openModalBtn = document.getElementById("openModalBtn");
+        var closeModalBtn = document.getElementById("closeModalBtn");
+
+        function openModal() {
+            register.style.display = "block";
+        }
+
+        function closeModal() {
+            register.style.display = "none";
+        }
+
+        openModalBtn.addEventListener("click", openModal);
+        closeModalBtn.addEventListener("click", closeModal);
+
+        window.addEventListener("click", function (event) {
+            if (event.target == register) {
+                closeModal();
+            }
+        });
+
+        function Login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+        }
+
+    </script>
 </body>
+
 </html>
