@@ -7,6 +7,7 @@
     <title>Login</title>
     <link rel="stylesheet" href="/css/login-register.css">
 </head>
+
 <body>
     <div class="login-container">
         <h1>Login</h1>
@@ -17,7 +18,7 @@
         </form>
         <br>
         <div class="btn-box">
-            <button>Login</button>
+            <button onclick="Login();">Login</button>
             <button id="openModalBtn">Register</button>
         </div>
     </div>
@@ -29,15 +30,27 @@
             <form>
                 <input type="signup-email" placeholder="Email" required autocomplete="signup-email">
                 <input type="signup-password" placeholder="Password" required autocomplete="signup-password">
-                <input type="confirm-signup-password" placeholder="Confirm Password" required autocomplete="confirm-password">
+                <input type="confirm-signup-password" placeholder="Confirm Password" required
+                    autocomplete="confirm-password">
             </form>
             <br>
             <div class="btn-box">
                 <button id="closeModalBtn">Cancel</button>
-                <button>Register</button>
+                <button onclick="Register();">Register</button>
             </div>
         </div>
     </div>
+
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <h2>Something Wrong!</h2>
+            <p>Your Email or Password is Incorrect!</p>
+            <div style="text-align: right;">
+                <button class="close-btn" onclick="closePopup();">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         var register = document.getElementById("openRegister");
         var openModalBtn = document.getElementById("openModalBtn");
@@ -59,10 +72,31 @@
                 closeModal();
             }
         });
+        const popup = document.getElementById("popup");
+
+        function openPopup() {
+            popup.style.display = "block";
+        }
+
+        function closePopup() {
+            popup.style.display = "none";
+        }
 
         function Login() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+
+            if (email === 'admin@email.com' && password === '1234') {
+                window.location.href = "/admin/dashboard.html";
+            } else if (email === 'user@email.com' && password === '4321') {
+                window.location.href = "home.html";
+            } else {
+                openPopup();
+            }
+        }
+
+        function Register() {
+            alert('Incoming')
         }
 
     </script>
