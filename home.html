@@ -13,12 +13,12 @@
     * {
         margin: 0;
         padding: 0;
+        overflow: hidden;
     }
 
     body {
         font-family: 'Inclusive Sans', sans-serif;
         font-family: 'Rubik', sans-serif;
-        overflow: hidden;
         background-color: #F3F6FA;
     }
 
@@ -83,6 +83,42 @@
 
     .menu-bar p {
         color: #273143;
+    }
+
+    .new-link-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 140px;
+        height: 40px;
+        gap: 5px;
+        cursor: pointer;
+        border-radius: 8px;
+        background-color: #022d94;
+        color: #fff;
+    }
+
+    .new-link-btn:hover {
+        background-color: #fff;
+        color: #022d94;
+        border-radius: 8px;
+        border: 1px solid #022d94;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+        left: 10vw;
+        top: 62px;
+        background-color: #fff;
+        border-radius: 8px;
+    }
+
+    .show {
+        display: block;
     }
 
     .select-container {
@@ -280,6 +316,60 @@
         line-height: 40px;
     }
 
+    .overlay-new-link {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    .overlay-new-link-content {
+        background-color: #fff;
+        width: 40%;
+        margin: 5% 30%;
+        padding: 30px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        position: relative;
+        line-height: 45px;
+    }
+
+    .overlay-new-qr {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    .overlay-new-qr-content {
+        background-color: #fff;
+        width: 40%;
+        margin: 5% 30%;
+        padding: 30px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        position: relative;
+        line-height: 45px;
+    }
+
+    .overlay-qr-success-content {
+        background-color: #fff;
+        width: 40%;
+        margin: 5% 30%;
+        padding: 30px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        position: relative;
+        line-height: 45px;
+        text-align: center;
+    }
+
     .btn-delete-box {
         text-align: end;
         gap: 20px;
@@ -391,6 +481,34 @@
         align-items: center;
     }
 
+    .download-qr-btn-sucess {
+        border: none;
+        border-radius: 8px;
+        background: #022d94;
+        height: 40px;
+        width: 130px;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #fff;
+        gap: 10px;
+    }
+
+    .copy-code-link {
+        border: #022d94 1px solid;
+        border-radius: 8px;
+        background: #fff;
+        height: 40px;
+        width: 130px;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #022d94;
+        gap: 10px;
+    }
+
     .short-url {
         text-decoration: none;
         white-space: nowrap;
@@ -399,6 +517,50 @@
         display: inline-block;
         max-width: 400px;
         color: #3f3f3f;
+    }
+
+    .create-new-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 20px;
+    }
+
+    .create-new-link i {
+        color: #022d94;
+    }
+
+    .create-new-link p {
+        color: #022d94;
+    }
+
+    .preview-qr {
+        display: flex;
+        justify-content: space-between;
+        gap: 30px;
+        align-items: center;
+    }
+
+    .preview-qr img {
+        width: 160px;
+    }
+
+    .close-qr-success {
+        position: absolute;
+        right: 0;
+        top: 0px;
+        padding: 10px;
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .flex-center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 30px;
     }
 </style>
 
@@ -410,6 +572,22 @@
                     <i class="material-icons">home</i>
                     <p>Home</p>
                 </div>
+
+                <div class="new-link-btn" onclick="toggleDropdown()">
+                    <i class="material-icons">add</i>
+                    <p>Create New</p>
+                    <div class="dropdown-content">
+                        <div class="create-new-link" onclick="openNewLink();">
+                            <i class="material-icons">link</i>
+                            <p>Links</p>
+                        </div>
+                        <div class="create-new-link" onclick="openNewQR();">
+                            <i class="material-icons">qr_code</i>
+                            <p>QR Codes</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="menu-bar" id="links" onclick="showContent('content-links')">
                     <i class="material-icons">link</i>
                     <p>Links</p>
@@ -615,6 +793,85 @@
         </div>
     </div>
 
+    <div id="newLink" class="overlay-new-link">
+        <div class="overlay-new-link-content">
+            <h1>Create New</h1>
+            <p>Destination</p>
+            <input class="ip-title" type="text">
+            <p>Title (Optional)</p>
+            <input class="ip-title" type="text">
+            <h2>Way to share</h2>
+            <h4>Short link</h4>
+            <div class="field-domain">
+                <div style="width: 40%;">
+                    <p>Domain</p>
+                    <input style="width: 90%;" type="text">
+                </div>
+                <div style="width: 40%; margin-bottom: 20px;">
+                    <p>Back Half</p>
+                    <input style="width: 90%;" type="text">
+                </div>
+            </div>
+            <div class="btn-delete-box">
+                <button class="cancel-edit" onclick="closeNewLink()">Cancel</button>
+                <button class="edit-btn">Create</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="newQr" class="overlay-new-qr">
+        <div class="overlay-new-qr-content">
+            <h1>Create a QR Codes</h1>
+            <h2>Enter your destination</h2>
+            <div class="preview-qr">
+                <div>
+                    <p>Destination URL</p>
+                    <input class="ip-title" type="text">
+                    <p>Title (Optional)</p>
+                    <input class="ip-title" type="text">
+                    <h4>Short link</h4>
+                </div>
+                <img src="/imgs/qrcode.svg" alt="preview qr">
+            </div>
+
+            <div class="field-domain">
+                <div style="width: 40%;">
+                    <p>Domain</p>
+                    <input style="width: 90%;" type="text">
+                </div>
+                <div style="width: 40%; margin-bottom: 20px;">
+                    <p>Back Half</p>
+                    <input style="width: 90%;" type="text">
+                </div>
+            </div>
+            <div class="btn-delete-box">
+                <button class="cancel-edit" onclick="closeNewQR()">Cancel</button>
+                <button class="edit-btn" onclick="closeNewQR(); openQrSuccess();">Create</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="qrSuccess" class="overlay-new-qr">
+        <div class="overlay-qr-success-content">
+            <button class="close-qr-success" onclick="closeQrSuccess()">X</button>
+            <h1>Your QR Code is ready 🎉</h1>
+            <h4>Scan the image below to preview your QR Code</h4>
+            <img src="/imgs/qrcode.svg" alt="preview qr" style="width: 250px;">
+            <p>bit.ly/3EBGMKX</p>
+            <div class="flex-center">
+                <button class="copy-code-link">
+                    Copy Code
+                    <i class="material-icons">content_copy</i>
+                </button>
+                <button class="download-qr-btn-sucess">
+                    Download
+                    <i class="material-icons">download</i>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script>
         function showContent(contentId) {
@@ -649,6 +906,22 @@
             downloadLink.click();
         }
 
+        function toggleDropdown() {
+            var dropdownContent = document.querySelector(".dropdown-content");
+            var isHidden = window.getComputedStyle(dropdownContent).display === 'none';
+
+            dropdownContent.style.display = isHidden ? 'block' : 'none';
+        }
+
+        document.addEventListener("click", function (event) {
+            var dropdownContent = document.querySelector(".dropdown-content");
+            var dropdownButton = document.querySelector(".new-link-btn");
+
+            if (!dropdownButton.contains(event.target) && !dropdownContent.contains(event.target)) {
+                dropdownContent.style.display = 'none';
+            }
+        });
+
         function openEditOverlay() {
             const editOverlay = document.getElementById("editOverlay");
             editOverlay.style.display = "block";
@@ -677,6 +950,36 @@
         function closeEditQRCode() {
             const editOverlay = document.getElementById("editQRcode");
             editOverlay.style.display = "none";
+        }
+
+        function openNewLink() {
+            const newLink = document.getElementById("newLink");
+            newLink.style.display = "block";
+        }
+
+        function closeNewLink() {
+            const newLink = document.getElementById("newLink");
+            newLink.style.display = "none";
+        }
+
+        function openNewQR() {
+            const newQr = document.getElementById("newQr");
+            newQr.style.display = "block";
+        }
+
+        function closeNewQR() {
+            const newQr = document.getElementById("newQr");
+            newQr.style.display = "none";
+        }
+
+        function openQrSuccess() {
+            const qrSuccess = document.getElementById("qrSuccess");
+            qrSuccess.style.display = "block";
+        }
+
+        function closeQrSuccess() {
+            const qrSuccess = document.getElementById("qrSuccess");
+            qrSuccess.style.display = "none";
         }
 
         function toErrorPage() {
