@@ -149,6 +149,9 @@
                 })
                 .then(result => {
                     console.log(result)
+                    if (result.code === 200) {
+                        window.location.reload();
+                    }
                 })
                 .catch(error => {
                     console.log('error', error)

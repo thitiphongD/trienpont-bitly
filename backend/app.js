@@ -4,6 +4,8 @@ const PORT = 4000;
 const shortid = require('shortid');
 const mysql = require("mysql2/promise");
 const cors = require('cors');
+const fetch = require('node-fetch');
+const { parse } = require('node-html-parser');
 app.use(express.json());
 app.use(cors());
 
@@ -115,8 +117,9 @@ app.post('/register', async (req, res) => {
     }
 });
 
-app.post('/shortLink', (req, res) => {
+app.post('/shortLink', async (req, res) => {
     const longUrl = req.body.longUrl;
+    const email = req.body.email;
 
     if (!longUrl) {
         return res.status(400).json({
@@ -127,9 +130,24 @@ app.post('/shortLink', (req, res) => {
         const shortLinkId = shortid.generate();
         const shortLinkUrl = `http://localhost:4000/${shortLinkId}`;
 
+        const response = await fetch(longUrl);
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch the web page');
+        }
+
+        const htmlContent = await response.text();
+        const root = parse(htmlContent);
+        const title = root.querySelector('title').text;
+        const faviconLink = root.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
+        const faviconHref = faviconLink ? faviconLink.getAttribute('href') : null;
+
+
         return res.status(200).json({
             shortLink: shortLinkUrl,
             longLink: longUrl,
+            title: title,
+            faviconUrl: faviconHref ? new URL(faviconHref, longUrl).toString() : null,
         });
     } catch (error) {
         console.error(error);
