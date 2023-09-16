@@ -411,7 +411,7 @@
     }
 
     .field-domain input {
-        width: 100%;
+        width: 90%;
         padding: 8px;
         border-radius: 8px;
         border: 1px solid gray
@@ -723,31 +723,31 @@
 
     <div id="editOverlay" class="overlay-edit">
         <div class="overlay-edit-content">
-            <h2>Edit Links</h2>
+            <h2>Edit Links <span id="editID" style="display: none;"></span> </h2>
             <div style="width: 100%;">
                 <p>Title</p>
-                <input class="ip-title" type="text">
+                <input id="editInputTitle" class="ip-title" type="text">
             </div>
             <div class="field-domain">
                 <div style="width: 45%;">
                     <p>Domain</p>
-                    <input type="text">
+                    <input type="text" placeholder="http://localhost:4000/" readonly>
                 </div>
                 <div style="width: 45%; margin-bottom: 20px;">
                     <p>Back Half</p>
-                    <input type="text">
+                    <input id="editBackHalf" type="text">
                 </div>
             </div>
             <div class="btn-delete-box">
                 <button class="cancel-edit" onclick="closeEditOverlay()">Cancel</button>
-                <button class="edit-btn">Save</button>
+                <button class="edit-btn" onclick="editLink();">Save</button>
             </div>
         </div>
     </div>
 
     <div id="deleteOverlay" class="overlay-delete">
         <div class="overlay-delete-content">
-            <h2>Delete link?</h2>
+            <h2>Delete link ?<span id="linkIdToDelete" style="display: none;"></span></h2>
             <p>Deleting this link will redirect it to the
                 <span class="link-error" onclick="toErrorPage();">error page.</span>
             </p>
@@ -755,7 +755,7 @@
             <br>
             <div class="btn-delete-box">
                 <button class="cancel-btn" onclick="closeDeleteOverlay()">Cancel</button>
-                <button class="confirm-delete">Delete link</button>
+                <button class="confirm-delete" onclick="deleteLink();">Delete link</button>
             </div>
         </div>
     </div>
@@ -813,7 +813,6 @@
             </div>
         </div>
     </div>
-
 
     <div id="newQr" class="overlay-new-qr">
         <div class="overlay-new-qr-content">
@@ -919,6 +918,9 @@
                 const shortLinkContainer = document.getElementById("shortLinkContainer");
 
                 for (let i = 0; i < result.data.length; i++) {
+
+                    const shortURL = `${result.data[i].domain}${result.data[i].short_link}`
+
                     const shortLink = `
                         <div class="card-link">
                             <img class="web-icon-from" src="${result.data[i].icon !== null ? result.data[i].icon : '/imgs/www-icon.png'}" alt="web icon">
@@ -926,7 +928,7 @@
                             <div class="detail-web">
                                 <p class="web-title">${result.data[i].title}</p>
                                 <div>
-                                    <a id="copy-link" href="${result.data[i].short_link}">${result.data[i].short_link}</a>
+                                    <a id="copy-link" href="${shortURL}">${shortURL}</a>
                                     <a target="_blank" href="${result.data[i].original_link}">${result.data[i].original_link}</a>
                                 </div>
                                 <div class="detail-short">
@@ -939,13 +941,10 @@
                                 <button class="copy-button" onclick="copyLink('${result.data[i].short_link}')">
                                     <i class="material-icons">content_copy</i>
                                 </button>
-
-
-
-                                <button onclick="openEditOverlay();">
+                                <button onclick="openEditOverlay(${result.data[i].id});">
                                     <i class="material-icons">edit</i>
                                 </button>
-                                <button onclick="openDeleteOverlay();">
+                                <button onclick="openDeleteOverlay(${result.data[i].id});">
                                     <i class="material-icons">delete</i>
                                 </button>
                             </div>
@@ -953,7 +952,6 @@
                     `;
 
                     shortLinkContainer.innerHTML += shortLink;
-                    console.log(result.data[i])
                 }
             })
             .catch(error => {
@@ -1050,9 +1048,83 @@
             }
         });
 
-        function openEditOverlay() {
+        function openEditOverlay(id) {
             const editOverlay = document.getElementById("editOverlay");
             editOverlay.style.display = "block";
+
+            var myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "id": id
+            });
+
+            var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+            };
+
+            fetch("http://localhost:4000/getLinkByID", requestOptions)
+                .then(response => {
+                    return response.json()
+                })
+                .then(result => {
+                    console.log(result);
+                    const id = result.data[0].id;
+                    const inputID = document.getElementById('editID');
+                    inputID.innerText = id;
+
+                    const title = result.data[0].title;
+                    const inputTitle = document.getElementById('editInputTitle');
+                    inputTitle.value = title;
+
+                    const backHalf = result.data[0].short_link;
+                    const inputBackHalf = document.getElementById('editBackHalf');
+                    inputBackHalf.value = backHalf;
+                })
+                .catch(error => {
+                    console.log('error', error)
+                });
+        }
+
+        function editLink() {
+            const inputTitle = document.getElementById('editInputTitle').value;
+            const inputBackHalf = document.getElementById('editBackHalf').value;
+            const inputID = document.getElementById('editID').textContent;
+            var id = parseInt(inputID);
+
+            var myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "id": id,
+                "editTitle": inputTitle,
+                "editBackHalf": inputBackHalf
+            });
+
+            var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+            };
+
+            fetch("http://localhost:4000/updateLink", requestOptions)
+                .then(response => {
+                    return response.json()
+                })
+                .then(result => {
+                    console.log(result)
+                    if (result.code === 200) {
+                        alert('Success');
+                        window.location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.log('error', error)
+                });
         }
 
         function closeEditOverlay() {
@@ -1060,9 +1132,46 @@
             editOverlay.style.display = "none";
         }
 
-        function openDeleteOverlay() {
+        function openDeleteOverlay(id) {
+            document.getElementById('linkIdToDelete').textContent = id;
             const editOverlay = document.getElementById("deleteOverlay");
             editOverlay.style.display = "block";
+        }
+
+        function deleteLink() {
+
+            var id = document.getElementById('linkIdToDelete').textContent;
+
+            id = parseInt(id)
+            console.log(id);
+
+            var myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "id": id
+            });
+
+            var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+            };
+
+            fetch("http://localhost:4000/deleteLink", requestOptions)
+                .then(response => {
+                    return response.json()
+                })
+                .then(result => {
+                    console.log(result)
+                    if (result.code === 200) {
+                        window.location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.log('error', error)
+                });
         }
 
         function closeDeleteOverlay() {

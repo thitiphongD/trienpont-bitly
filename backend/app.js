@@ -123,7 +123,7 @@ function checkURL(url) {
 
 app.post('/shortLink', async (req, res) => {
 
-    const {longUrl, email, newTitle, newBackHalf} = req.body;
+    const { longUrl, email, newTitle, newBackHalf } = req.body;
 
     checkURL(longUrl);
 
@@ -144,7 +144,9 @@ app.post('/shortLink', async (req, res) => {
 
         const shortLinkId = shortid.generate();
         const queryBackHalf = newBackHalf || shortLinkId;
-        const shortLinkUrl = `http://localhost:4000/${queryBackHalf}`;
+        const shortLinkUrl = queryBackHalf;
+
+        const domain = 'http://localhost:4000/';
 
         const connection = await pool.getConnection();
         const [rows] = await connection.query('SELECT COUNT(*) AS count FROM users WHERE email = ?', [email]);
@@ -165,22 +167,24 @@ app.post('/shortLink', async (req, res) => {
 
         const htmlContent = await response.text();
         const root = parse(htmlContent);
-        const title = root.querySelector('title').text;
+        const titleElement = root.querySelector('title');
+        const title = titleElement ? titleElement.text : 'No Title Found';
+
         const faviconLink = root.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
         const faviconHref = faviconLink ? faviconLink.getAttribute('href') : null;
         const icon = faviconHref ? new URL(faviconHref, longUrl).toString() : null;
 
-        const queryTitle =  newTitle || title;
-        
+        const queryTitle = newTitle || title;
 
         await connection.query(`
-            INSERT INTO link (email, original_link, short_link, title, icon, timestamp) 
-            VALUES (?, ?, ?, ?, ?, CONVERT_TZ(NOW(), '+00:00', '+00:00'))`, [email, longUrl, shortLinkUrl, queryTitle, icon]
+            INSERT INTO link (email, original_link, domain, short_link, title, icon, timestamp) 
+            VALUES (?, ?, ?, ?, ?, ?, CONVERT_TZ(NOW(), '+00:00', '+00:00'))`, [email, longUrl, domain, shortLinkUrl, queryTitle, icon]
         );
 
         return res.status(200).json({
             code: 200,
             email: email,
+            domain: domain,
             shortLink: shortLinkUrl,
             longLink: longUrl,
             title: queryTitle,
@@ -200,7 +204,7 @@ app.post('/getLink', async (req, res) => {
 
     try {
         const connection = await pool.getConnection();
-        const rows = await connection.query('SELECT * FROM link WHERE email = ?', [email]);
+        const rows = await connection.query('SELECT * FROM link WHERE email = ? ORDER BY id DESC', [email]);
         connection.release();
 
         return res.status(200).json({
@@ -214,7 +218,78 @@ app.post('/getLink', async (req, res) => {
             message: 'Internal server error',
         });
     }
-})
+});
+
+app.post('/getLinkByID', async (req, res) => {
+    const id = req.body.id;
+
+    try {
+        const connection = await pool.getConnection();
+        const rows = await connection.query('SELECT id, title, short_link FROM link WHERE id = ?', [id]);
+        connection.release();
+
+        return res.status(200).json({
+            code: 200,
+            data: rows[0]
+        })
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            code: 500,
+            message: 'Internal server error',
+        });
+    }
+});
+
+app.post('/updateLink', async (req, res) => {
+    const { id, editTitle, editBackHalf } = req.body;
+    try {
+        const connection = await pool.getConnection();
+
+        const result = await connection.query(
+            'UPDATE link SET title = ?, short_link = ? WHERE id = ?',
+            [editTitle, editBackHalf, id]
+        );
+        connection.release();
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                code: 404,
+                message: 'Link not found or not updated.',
+            });
+        }
+        return res.status(200).json({
+            code: 200,
+            message: 'Link updated successfully.',
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            code: 500,
+            message: 'Internal server error',
+        });
+    }
+});
+
+app.post('/deleteLink', async (req, res) => {
+    const id = req.body.id;
+    try {
+        const connection = await pool.getConnection();
+        await connection.query('DELETE FROM link WHERE id = ?', [id]);
+        connection.release();
+        return res.status(200).json({
+            code: 200,
+            message: 'Link deleted successfully',
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            code: 500,
+            message: 'Internal server error',
+        });
+    }
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
