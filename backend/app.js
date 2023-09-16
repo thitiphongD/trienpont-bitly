@@ -3,7 +3,9 @@ const app = express();
 const PORT = 4000;
 const shortid = require('shortid');
 const mysql = require("mysql2/promise");
+const cors = require('cors');
 app.use(express.json());
+app.use(cors());
 
 const pool = mysql.createPool({
     host: '127.0.0.1',

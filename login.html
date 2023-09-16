@@ -28,9 +28,9 @@
             <h1>Register</h1>
             <br>
             <form>
-                <input type="signup-email" placeholder="Email" required autocomplete="signup-email">
-                <input type="signup-password" placeholder="Password" required autocomplete="signup-password">
-                <input type="confirm-signup-password" placeholder="Confirm Password" required
+                <input id="signupEmail" type="email" placeholder="Email" required autocomplete="signup-email">
+                <input id="signupPassword" type="password" placeholder="Password" required autocomplete="signup-password">
+                <input id="signupConfirmPassword" type="password" placeholder="Confirm Password" required
                     autocomplete="confirm-password">
             </form>
             <br>
@@ -80,25 +80,82 @@
 
         function closePopup() {
             popup.style.display = "none";
+            window.location.reload();
         }
 
         function Login() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            if (email === 'admin@email.com' && password === '1234') {
-                window.location.href = "/admin/dashboard.html";
-            } else if (email === 'user@email.com' && password === '4321') {
-                window.location.href = "home.html";
-            } else {
-                openPopup();
-            }
+            console.log(email, password);
+
+            var myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "email": email,
+                "password": password
+            });
+
+            var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+            };
+
+            fetch("http://localhost:4000/login", requestOptions)
+                .then(response => response.json())
+                .then(result => {
+                    console.log(result)
+                    if (result.code === 200 && result.role === 'User') {
+                        localStorage.setItem('email', result.email);
+                        window.location.href = "home.html";
+                    } else if (result.code === 200 && result.role === 'Admin') {
+                        window.location.href = "/admin/dashboard.html";
+                    } else {
+                        openPopup();
+                    }
+                })
+                .catch(error => {
+                    console.log('error', error)
+                });
         }
 
         function Register() {
-            alert('Incoming')
-        }
+            const signupEmail = document.getElementById('signupEmail').value;
+            const signupPassword = document.getElementById('signupPassword').value;
+            const signupConfirmPassword = document.getElementById('signupConfirmPassword').value;
+            
+            var myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
 
+            var raw = JSON.stringify({
+                "email": signupEmail,
+                "password": signupPassword,
+                "confirmPassword": signupConfirmPassword
+            });
+
+            var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+            };
+
+            fetch("http://localhost:4000/register", requestOptions)
+                .then(response => {
+                    return response.json()
+                })
+                .then(result => {
+                    console.log(result)
+                })
+                .catch(error => {
+                    console.log('error', error)
+                });
+        }
+        
+        localStorage.removeItem('email');
     </script>
 </body>
 
