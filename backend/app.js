@@ -117,18 +117,31 @@ app.post('/register', async (req, res) => {
     }
 });
 
+
 app.post('/shortLink', async (req, res) => {
     const longUrl = req.body.longUrl;
     const email = req.body.email;
 
-    if (!longUrl) {
+    if (!longUrl || !email) {
         return res.status(400).json({
-            message: 'Please provide a valid "link" property in the request body.',
+            message: 'Please provide a valid "link" or "email" property in the request body.',
         });
     }
     try {
+
+
         const shortLinkId = shortid.generate();
         const shortLinkUrl = `http://localhost:4000/${shortLinkId}`;
+
+        const connection = await pool.getConnection();
+        const [rows] = await connection.query('SELECT COUNT(*) AS count FROM users WHERE email = ?', [email]);
+        connection.release();
+
+        if (rows[0].count === 0) {
+            return res.status(400).json({
+                message: 'Email address does not exist in the database.',
+            });
+        }
 
         const response = await fetch(longUrl);
 
@@ -141,13 +154,20 @@ app.post('/shortLink', async (req, res) => {
         const title = root.querySelector('title').text;
         const faviconLink = root.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
         const faviconHref = faviconLink ? faviconLink.getAttribute('href') : null;
+        const icon = faviconHref ? new URL(faviconHref, longUrl).toString() : null;
 
+        await connection.query(`
+            INSERT INTO link (email, original_link, short_link, title, icon, timestamp) 
+            VALUES (?, ?, ?, ?, ?, CONVERT_TZ(NOW(), '+00:00', '+00:00'))`, [email, longUrl, shortLinkUrl, title, icon]
+        );
 
         return res.status(200).json({
+            code: 200,
+            email: email,
             shortLink: shortLinkUrl,
             longLink: longUrl,
             title: title,
-            faviconUrl: faviconHref ? new URL(faviconHref, longUrl).toString() : null,
+            icon: icon        
         });
     } catch (error) {
         console.error(error);
