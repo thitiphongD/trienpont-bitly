@@ -35,19 +35,10 @@
         padding: 30px;
     }
 
-    footer {
-        background-color: #fff;
-        text-align: center;
-        padding: 10px;
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-    }
-
     .profile-box {
         background-color: #3f3f3f;
-        width: 40px;
-        height: 40px;
+        width: 60px;
+        height: 60px;
         border-radius: 50%;
         display: flex;
         justify-content: center;
@@ -186,6 +177,7 @@
         display: flex;
         justify-content: space-between;
         border-radius: 8px;
+        margin: 15px 0;
     }
 
     .action-card {
@@ -239,6 +231,12 @@
         color: #273143;
         font-size: 26px;
         margin-bottom: 10px;
+        text-decoration: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+        max-width: 400px;
     }
 
     #message {
@@ -562,6 +560,32 @@
         justify-content: center;
         gap: 30px;
     }
+
+    #shortLinkContainer {
+        height: 80vh;
+        overflow: auto;
+    }
+
+    .overlay-create-link-success {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    .overlay-create-link-success-content {
+        background-color: #fff;
+        width: 40%;
+        margin: 20% 30%;
+        padding: 30px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        position: relative;
+        line-height: 45px;
+    }
 </style>
 
 <body>
@@ -603,7 +627,7 @@
             </div>
         </div>
         <div class="profile-box">
-            <p>T</p>
+            <p id="user-email"></p>
         </div>
     </header>
 
@@ -647,33 +671,8 @@
         <div id="content-links" style="display: none;">
             <h1>Links</h1>
             <br>
-            <div class="card-link">
-                <img class="web-icon-from" src="/imgs/web-icon.png" alt="web icon">
+            <div id="shortLinkContainer">
 
-                <div class="detail-web">
-                    <p class="web-title">One Piece: Chapter 1092 : OnePiece</p>
-                    <div>
-                        <a id="copy-link" href="https://bit.ly/3EBGMKX">https://bit.ly/3EBGMKX</a>
-                        <a target="_blank"
-                            href="https://www.reddit.com/r/OnePiece/comments/16i9unx/one_piece_chapter_1092/">https://www.reddit.com/r/OnePiece/comments/16i9unx/one_piece_chapter_1092/</a>
-                    </div>
-                    <div class="detail-short">
-                        <i class="material-icons">date_range</i>
-                        <p>Sep 14, 2023</p>
-                    </div>
-
-                </div>
-                <div class="action-card">
-                    <button onclick="copyLink()">
-                        <i class="material-icons">content_copy</i>
-                    </button>
-                    <button onclick="openEditOverlay();">
-                        <i class="material-icons">edit</i>
-                    </button>
-                    <button onclick="openDeleteOverlay();">
-                        <i class="material-icons">delete</i>
-                    </button>
-                </div>
             </div>
         </div>
 
@@ -718,10 +717,6 @@
             <h2>Link-in-bio Content</h2>
         </div>
     </main>
-
-    <footer>
-        &copy; 2023 Your Website Footer
-    </footer>
 
     <!--Modal field-->
     <div id="message"></div>
@@ -797,24 +792,24 @@
         <div class="overlay-new-link-content">
             <h1>Create New</h1>
             <p>Destination</p>
-            <input class="ip-title" type="text">
+            <input class="ip-title" type="text" id="newDestination">
             <p>Title (Optional)</p>
-            <input class="ip-title" type="text">
+            <input class="ip-title" type="text" id="newTitle">
             <h2>Way to share</h2>
             <h4>Short link</h4>
             <div class="field-domain">
                 <div style="width: 40%;">
                     <p>Domain</p>
-                    <input style="width: 90%;" type="text">
+                    <input style="width: 90%;" type="text" placeholder="http://localhost:4000/" readonly>
                 </div>
                 <div style="width: 40%; margin-bottom: 20px;">
                     <p>Back Half</p>
-                    <input style="width: 90%;" type="text">
+                    <input style="width: 90%;" type="text" id="newBackHalf">
                 </div>
             </div>
             <div class="btn-delete-box">
                 <button class="cancel-edit" onclick="closeNewLink()">Cancel</button>
-                <button class="edit-btn">Create</button>
+                <button class="edit-btn" onclick="createLink();">Create</button>
             </div>
         </div>
     </div>
@@ -873,7 +868,141 @@
         </div>
     </div>
 
+    <div id="createLinkSuccess" class="overlay-create-link-success">
+        <div class="overlay-create-link-success-content">
+            <h1>Your Link is ready 🎉</h1>
+            <div style="display: flex; justify-content: end;">
+                <button class="edit-btn" onclick="closeCreateLinkSuccess()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="createLinkFail" class="overlay-create-link-success">
+        <div class="overlay-create-link-success-content">
+            <h1 id="failMessage"></h1>
+            <div style="display: flex; justify-content: end;">
+                <button class="edit-btn" onclick="closeCreateLinkFail(); closeNewLink();">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+
+        const email = localStorage.getItem('email');
+
+        if (email) {
+            const firstChar = email.charAt(0).toUpperCase(); // Get the first character in uppercase
+            const secondChar = email.charAt(1).toLowerCase(); // Get the second character in lowercase
+            const formattedEmail = firstChar + secondChar;
+            document.getElementById('user-email').textContent = formattedEmail;
+        }
+
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        var raw = JSON.stringify({
+            "email": email
+        });
+
+        var requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+        };
+
+        fetch("http://localhost:4000/getLink", requestOptions)
+            .then(response => {
+                return response.json()
+            })
+            .then(result => {
+                const shortLinkContainer = document.getElementById("shortLinkContainer");
+
+                for (let i = 0; i < result.data.length; i++) {
+                    const shortLink = `
+                        <div class="card-link">
+                            <img class="web-icon-from" src="${result.data[i].icon !== null ? result.data[i].icon : '/imgs/www-icon.png'}" alt="web icon">
+
+                            <div class="detail-web">
+                                <p class="web-title">${result.data[i].title}</p>
+                                <div>
+                                    <a id="copy-link" href="${result.data[i].short_link}">${result.data[i].short_link}</a>
+                                    <a target="_blank" href="${result.data[i].original_link}">${result.data[i].original_link}</a>
+                                </div>
+                                <div class="detail-short">
+                                    <i class="material-icons">date_range</i>
+                                    <p>${result.data[i].timestamp}</p>
+                                </div>
+
+                            </div>
+                            <div class="action-card">
+                                <button class="copy-button" onclick="copyLink('${result.data[i].short_link}')">
+                                    <i class="material-icons">content_copy</i>
+                                </button>
+
+
+
+                                <button onclick="openEditOverlay();">
+                                    <i class="material-icons">edit</i>
+                                </button>
+                                <button onclick="openDeleteOverlay();">
+                                    <i class="material-icons">delete</i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+
+                    shortLinkContainer.innerHTML += shortLink;
+                    console.log(result.data[i])
+                }
+            })
+            .catch(error => {
+                console.error('Email not found in localStorage');
+            });
+
+
+        function createLink() {
+            const newDestination = document.getElementById('newDestination').value;
+            const newTitle = document.getElementById('newTitle').value;
+            const newBackHalf = document.getElementById('newBackHalf').value;
+
+            var myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "longUrl": newDestination,
+                "newTitle": newTitle,
+                "newBackHalf": newBackHalf,
+                "email": email
+            });
+
+            var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+            };
+
+            fetch("http://localhost:4000/shortLink", requestOptions)
+                .then(response => {
+                    return response.json()
+                })
+                .then(result => {
+                    console.log(result)
+                    if (result.code === 400) {
+                        const errorMessage = result.message;
+                        openCreateLinkFail(errorMessage)
+                    }
+
+                    if (result.code === 200) {
+                        openCreateLinkSuccess();
+                    }
+                })
+                .catch(error => {
+                    console.log('error', error)
+                });
+        }
+
         function showContent(contentId) {
             document.querySelectorAll('main > div').forEach(content => {
                 content.style.display = 'none';
@@ -881,21 +1010,20 @@
             document.getElementById(contentId).style.display = 'block';
         }
 
-        function copyLink() {
-            var copyText = document.getElementById("copy-link");
+        function copyLink(link) {
             var textArea = document.createElement("textarea");
-            textArea.value = copyText.textContent;
+            textArea.value = link;
             document.body.appendChild(textArea);
             textArea.select();
             document.execCommand("copy");
             document.body.removeChild(textArea);
 
             var message = document.getElementById("message");
-            message.textContent = "Link copied to clipboard: " + copyText.textContent;
+            message.textContent = "Link copied to clipboard: " + link;
             message.style.display = "block";
             setTimeout(function () {
                 message.style.display = "none";
-            }, 3000);
+            }, 1000);
         }
 
         function downloadQRCode() {
@@ -960,6 +1088,14 @@
         function closeNewLink() {
             const newLink = document.getElementById("newLink");
             newLink.style.display = "none";
+
+            const newDestinationInput = document.getElementById("newDestination");
+            const newTitleInput = document.getElementById("newTitle");
+            const newBackHalfInput = document.getElementById("newBackHalf");
+
+            newDestinationInput.value = "";
+            newTitleInput.value = "";
+            newBackHalfInput.value = "";
         }
 
         function openNewQR() {
@@ -980,6 +1116,29 @@
         function closeQrSuccess() {
             const qrSuccess = document.getElementById("qrSuccess");
             qrSuccess.style.display = "none";
+        }
+
+        function openCreateLinkSuccess() {
+            const createLinkSuccess = document.getElementById("createLinkSuccess");
+            createLinkSuccess.style.display = "block";
+        }
+
+        function closeCreateLinkSuccess() {
+            const createLinkSuccess = document.getElementById("createLinkSuccess");
+            createLinkSuccess.style.display = "none";
+            window.location.reload();
+        }
+
+        function openCreateLinkFail(error) {
+            const successMessageElement = document.getElementById("failMessage");
+            successMessageElement.textContent = error; // Update the content with the error message
+            const createLinkFail = document.getElementById("createLinkFail");
+            createLinkFail.style.display = "block";
+        }
+
+        function closeCreateLinkFail() {
+            const createLinkFail = document.getElementById("createLinkFail");
+            createLinkFail.style.display = "none";
         }
 
         function toErrorPage() {

@@ -117,21 +117,34 @@ app.post('/register', async (req, res) => {
     }
 });
 
+function checkURL(url) {
+    return /^https?:\/\//i.test(url);
+}
 
 app.post('/shortLink', async (req, res) => {
-    const longUrl = req.body.longUrl;
-    const email = req.body.email;
+
+    const {longUrl, email, newTitle, newBackHalf} = req.body;
+
+    checkURL(longUrl);
+
+    if (!checkURL(longUrl)) {
+        return res.status(400).json({
+            code: 400,
+            message: 'URL is not in the correct pattern',
+        });
+    }
 
     if (!longUrl || !email) {
         return res.status(400).json({
+            code: 400,
             message: 'Please provide a valid "link" or "email" property in the request body.',
         });
     }
     try {
 
-
         const shortLinkId = shortid.generate();
-        const shortLinkUrl = `http://localhost:4000/${shortLinkId}`;
+        const queryBackHalf = newBackHalf || shortLinkId;
+        const shortLinkUrl = `http://localhost:4000/${queryBackHalf}`;
 
         const connection = await pool.getConnection();
         const [rows] = await connection.query('SELECT COUNT(*) AS count FROM users WHERE email = ?', [email]);
@@ -139,6 +152,7 @@ app.post('/shortLink', async (req, res) => {
 
         if (rows[0].count === 0) {
             return res.status(400).json({
+                code: 400,
                 message: 'Email address does not exist in the database.',
             });
         }
@@ -156,9 +170,12 @@ app.post('/shortLink', async (req, res) => {
         const faviconHref = faviconLink ? faviconLink.getAttribute('href') : null;
         const icon = faviconHref ? new URL(faviconHref, longUrl).toString() : null;
 
+        const queryTitle =  newTitle || title;
+        
+
         await connection.query(`
             INSERT INTO link (email, original_link, short_link, title, icon, timestamp) 
-            VALUES (?, ?, ?, ?, ?, CONVERT_TZ(NOW(), '+00:00', '+00:00'))`, [email, longUrl, shortLinkUrl, title, icon]
+            VALUES (?, ?, ?, ?, ?, CONVERT_TZ(NOW(), '+00:00', '+00:00'))`, [email, longUrl, shortLinkUrl, queryTitle, icon]
         );
 
         return res.status(200).json({
@@ -166,8 +183,8 @@ app.post('/shortLink', async (req, res) => {
             email: email,
             shortLink: shortLinkUrl,
             longLink: longUrl,
-            title: title,
-            icon: icon        
+            title: queryTitle,
+            icon: icon
         });
     } catch (error) {
         console.error(error);
@@ -177,6 +194,27 @@ app.post('/shortLink', async (req, res) => {
         });
     }
 });
+
+app.post('/getLink', async (req, res) => {
+    const email = req.body.email;
+
+    try {
+        const connection = await pool.getConnection();
+        const rows = await connection.query('SELECT * FROM link WHERE email = ?', [email]);
+        connection.release();
+
+        return res.status(200).json({
+            code: 200,
+            data: rows[0]
+        })
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            code: 500,
+            message: 'Internal server error',
+        });
+    }
+})
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
