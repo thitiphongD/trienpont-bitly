@@ -586,6 +586,11 @@
         position: relative;
         line-height: 45px;
     }
+
+    #copy-link {
+        cursor: pointer;
+        color: #2A5BD6;
+    }
 </style>
 
 <body>
@@ -932,7 +937,7 @@
                             <div class="detail-web">
                                 <p class="web-title">${result.data[i].title}</p>
                                 <div>
-                                    <a id="copy-link" href="${shortURL}">${shortURL}</a>
+                                    <p id="copy-link" onclick="redirectLink('${result.data[i].short_link}')" target="_blank">${shortURL} </p>
                                     <a target="_blank" href="${result.data[i].original_link}">${result.data[i].original_link}</a>
                                 </div>
                                 <div class="detail-short">
@@ -1026,6 +1031,35 @@
             setTimeout(function () {
                 message.style.display = "none";
             }, 1000);
+        }
+
+        function redirectLink(link) {
+            var myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+            myHeaders.append("Cookie", "ci_session=so17t0diptqi5tr5g3ir5r5p47hq9uji");
+
+            var raw = JSON.stringify({
+                "shortLink": link
+            });
+
+            var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+            };
+
+            fetch("https://thity-api.cleverapps.io/redirectOriginal", requestOptions)
+                .then(response => {
+                    if (response.ok) {
+                        return response.json().then(URL => {
+                            window.location.href = URL.redirectURL;
+                        });
+                    } else {
+                        console.log('Error: ' + response.status);
+                    }
+                })
+                .catch(error => console.log('Error:', error));
         }
 
         function downloadQRCode() {
