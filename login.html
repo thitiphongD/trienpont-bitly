@@ -112,6 +112,7 @@
                         localStorage.setItem('email', result.email);
                         window.location.href = "home.html";
                     } else if (result.code === 200 && result.role === 'Admin') {
+                        localStorage.setItem('email', result.email);
                         window.location.href = "/admin/dashboard.html";
                     } else {
                         openPopup();

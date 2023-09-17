@@ -1,11 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <title>Dashboard</title>
 </head>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inclusive+Sans&family=Rubik:wght@300;400;500&display=swap');
+
+    * {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        color: #FFF;
+    }
+
+    body {
+        font-family: 'Inclusive Sans', sans-serif;
+        font-family: 'Rubik', sans-serif;
+        background-color: #15202E;
+        padding: 20px;
+    }
+
+    header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .center-flex {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .card-flex {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .btn-logout {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 140px;
+        height: 40px;
+        gap: 5px;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        background-color: #FFF;
+        color: #15202E;
+        font-weight: 500;
+        font-size: 16px;
+        gap: 10px;
+    }
+
+    i {
+        color: #15202E;
+    }
+
+    .card-user {
+        background-color: #FFF;
+        width: 90%;
+        border: none;
+        border-radius: 5px;
+        padding: 20px;
+        cursor: pointer;
+    }
+
+    p {
+        color: #15202E;
+    }
+
+    span {
+        color: #15202E;
+    }
+
+    th, td {
+        color: #15202E;
+    }
+
+    #usersContainer {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+    }
+
+    .key {
+        font-weight: 600;
+    }
+
+    .value {
+        font-weight: 200;
+    }
+</style>
+
 <body>
-    <h1>Welcome Admin</h1>
+    <header>
+        <h1>Welcome Admin</h1>
+
+        <div class="center-flex">
+            <h1 id="current-time"></h1>
+            <button class="btn-logout" onclick="window.location.href = '/login.html'">
+                Logout
+                <i class="material-icons">exit_to_app</i>
+            </button>
+        </div>
+    </header>
+    <br>
+    <h2>DATA USER</h2>
+    <br>
+    <div id="usersContainer">
+
+    </div>
+
+    <script>
+        function updateCurrentTime() {
+            const currentTimeElement = document.getElementById("current-time");
+            const options = {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZone: 'Asia/Bangkok'
+            };
+            const currentTime = new Date().toLocaleTimeString('th-TH', options);
+            currentTimeElement.textContent = currentTime;
+        }
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 1000);
+
+        if (!localStorage.getItem('email')) {
+            window.location.href = "/login.html";
+        }
+
+        const email = localStorage.getItem('email');
+
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        var raw = JSON.stringify({
+            "email": email
+        });
+
+        var requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+        };
+
+        fetch("http://localhost:8088/users", requestOptions)
+            .then(response => {
+                return response.json()
+            })
+            .then(result => {
+                const usersContainer = document.getElementById('usersContainer');
+
+                for (let i = 0; i < result.data.length; i++) {
+                    const user = result.data[i];
+                    let HTML;
+                    HTML = `
+                        <div class="card-user">
+                            <div class="card-flex">
+                               <div class="key">
+                                    <p>ID</p>
+                                    <p>Email</p>
+                                    <p>Password</p>
+                                    <p>Role</p>
+                                </div>
+                                <div class="value">
+                                    <p>${user.id}</p>
+                                    <p>${user.email}</p>
+                                    <p>${user.password}</p>
+                                    <p>${user.role}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    usersContainer.innerHTML += HTML;
+                }
+            })
+            .catch(error => {
+                console.log('error', error)
+            });
+    </script>
 </body>
+
 </html>
