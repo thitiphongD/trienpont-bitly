@@ -74,6 +74,7 @@ fetch("https://thity-api.cleverapps.io/users", requestOptions)
     });
 
 function openGetLinks(email) {
+    showLoader();
     var overlay = document.getElementById("overlay");
     overlay.style.display = "block";
 
@@ -93,6 +94,7 @@ function openGetLinks(email) {
 
     fetch("https://thity-api.cleverapps.io/getLink", requestOptions)
         .then(response => {
+            hideLoader();
             return response.json()
         })
         .then(result => {
@@ -162,4 +164,14 @@ function closeGetLinks() {
 
 function redirectLink(link) {
     window.open(link, '_blank');
+}
+
+function showLoader() {
+    const loader = document.getElementById('loader');
+    loader.style.display = 'block';
+}
+
+function hideLoader() {
+    const loader = document.getElementById('loader');
+    loader.style.display = 'none';
 }
