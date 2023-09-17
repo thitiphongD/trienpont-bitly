@@ -160,7 +160,7 @@
             <div class="field-domain">
                 <div style="width: 45%;">
                     <p>Domain</p>
-                    <input type="text" placeholder="https://trien-bit/" readonly>
+                    <input type="text" placeholder="https://thity-api.cleverapps.io/" readonly>
                 </div>
                 <div style="width: 45%; margin-bottom: 20px;">
                     <p>Back Half</p>
@@ -229,7 +229,7 @@
             <div class="field-domain">
                 <div style="width: 40%;">
                     <p>Domain</p>
-                    <input style="width: 90%;" type="text" placeholder="https://trien-bit/" readonly>
+                    <input style="width: 90%;" type="text" placeholder="https://thity-api.cleverapps.io/" readonly>
                 </div>
                 <div style="width: 40%; margin-bottom: 20px;">
                     <p>Back Half</p>
@@ -246,7 +246,8 @@
     <div id="newQr" class="overlay-new-qr">
         <div class="overlay-new-qr-content">
             <h1>Create a QR Codes</h1>
-            <h2>Enter your destination</h2>
+            <h3>Coming Soon....</h3>
+            <!-- <h2>Enter your destination</h2>
             <div class="preview-qr">
                 <div>
                     <p>Destination URL</p>
@@ -267,10 +268,10 @@
                     <p>Back Half</p>
                     <input style="width: 90%;" type="text">
                 </div>
-            </div>
+            </div> -->
             <div class="btn-delete-box">
                 <button class="cancel-edit" onclick="closeNewQR()">Cancel</button>
-                <button class="edit-btn" onclick="closeNewQR(); openQrSuccess();">Create</button>
+                <!-- <button class="edit-btn" onclick="closeNewQR(); openQrSuccess();">Create</button> -->
             </div>
         </div>
     </div>
@@ -361,7 +362,7 @@
                             <div class="detail-web">
                                 <p class="web-title">${result.data[i].title}</p>
                                 <div>
-                                    <p id="copy-link" onclick="redirectLink('${result.data[i].short_link}')" target="_blank">${shortURL} </p>
+                                    <p id="copy-link" onclick="redirectLink('${result.data[i].short_link}')" href="#">${shortURL} </p>
                                     <a target="_blank" href="${result.data[i].original_link}">${result.data[i].original_link}</a>
                                 </div>
                                 <div class="detail-short">
@@ -371,7 +372,7 @@
 
                             </div>
                             <div class="action-card">
-                                <button class="copy-button" onclick="copyLink('${result.data[i].short_link}')">
+                                <button class="copy-button" onclick="copyLink('${shortURL}')">
                                     <i class="material-icons">content_copy</i>
                                 </button>
                                 <button onclick="openEditOverlay(${result.data[i].id});">
@@ -450,7 +451,7 @@
             document.body.removeChild(textArea);
 
             var message = document.getElementById("message");
-            message.textContent = "Link copied to clipboard: " + link;
+            message.textContent = "Copied ✅ " + link;
             message.style.display = "block";
             setTimeout(function () {
                 message.style.display = "none";
@@ -458,32 +459,9 @@
         }
 
         function redirectLink(link) {
-            var myHeaders = new Headers();
-            myHeaders.append("Content-Type", "application/json");
-            myHeaders.append("Cookie", "ci_session=so17t0diptqi5tr5g3ir5r5p47hq9uji");
+            const redirectUrl = `https://thity-api.cleverapps.io/${link}`;
 
-            var raw = JSON.stringify({
-                "shortLink": link
-            });
-
-            var requestOptions = {
-                method: 'POST',
-                headers: myHeaders,
-                body: raw,
-                redirect: 'follow'
-            };
-
-            fetch("https://thity-api.cleverapps.io/redirectOriginal", requestOptions)
-                .then(response => {
-                    if (response.ok) {
-                        return response.json().then(URL => {
-                            window.location.href = URL.redirectURL;
-                        });
-                    } else {
-                        console.log('Error: ' + response.status);
-                    }
-                })
-                .catch(error => console.log('Error:', error));
+            window.open(redirectUrl, '_blank');
         }
 
         function downloadQRCode() {

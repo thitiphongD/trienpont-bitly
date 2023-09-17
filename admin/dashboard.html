@@ -74,7 +74,7 @@
         cursor: pointer;
     }
 
-    p {
+    p, a {
         color: #15202E;
     }
 
@@ -82,7 +82,8 @@
         color: #15202E;
     }
 
-    th, td {
+    th,
+    td {
         color: #15202E;
     }
 
@@ -98,6 +99,97 @@
 
     .value {
         font-weight: 200;
+    }
+
+
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 1;
+    }
+
+    .overlay-content {
+        position: absolute;
+        top: 50%;
+        right: -31%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 20px;
+        height: 100%;
+        width: 58%;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .blur-link {
+        text-decoration: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
+    }
+
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        border: 2px solid #15202E;
+    }
+
+    /* Style for table headers (th) */
+    th {
+        background-color: #15202E;
+        color: #FFFFFF;
+        padding: 10px;
+        text-align: left;
+    }
+
+    td {
+        border: 1px solid #15202E;
+        padding: 10px;
+        vertical-align: middle;
+        font-size: 12px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #F2F2F2;
+    }
+
+    .img-icon {
+        text-align: center;
+    }
+
+    .img-icon img {
+        width: 20px;
+    }
+
+    .close-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 140px;
+        height: 40px;
+        gap: 5px;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        background-color: #F90B31;
+        color: #fff;
+        font-weight: 500;
+        font-size: 16px;
+        gap: 10px;
+    }
+
+    .close-btn:hover {
+        background-color: #fff;
+        color: #F90B31;
+        border-radius: 8px;
+        border: 1px solid #F90B31;
     }
 </style>
 
@@ -118,6 +210,31 @@
     <br>
     <div id="usersContainer">
 
+    </div>
+
+
+    <div id="overlay" class="overlay">
+        <div class="overlay-content">
+            <br>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Icon</th>
+                        <th>Destination URL</th>
+                        <th>Short Link</th>
+                        <th>Title</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody id="detailBody">
+
+                </tbody>
+            </table>
+            <br>
+            <div style="display: flex; justify-content: end;">
+                <button class="close-btn" onclick="closeGetLinks();">Close</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -155,7 +272,7 @@
             redirect: 'follow'
         };
 
-        fetch("http://localhost:8088/users", requestOptions)
+        fetch("https://thity-api.cleverapps.io/users", requestOptions)
             .then(response => {
                 return response.json()
             })
@@ -166,7 +283,7 @@
                     const user = result.data[i];
                     let HTML;
                     HTML = `
-                        <div class="card-user">
+                        <div class="card-user" onclick="openGetLinks('${user.email}')">
                             <div class="card-flex">
                                <div class="key">
                                     <p>ID</p>
@@ -189,6 +306,67 @@
             .catch(error => {
                 console.log('error', error)
             });
+
+        function openGetLinks(email) {
+            var overlay = document.getElementById("overlay");
+            overlay.style.display = "block";
+
+            var myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "email": email
+            });
+
+            var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+            };
+
+            fetch("https://thity-api.cleverapps.io/getLink", requestOptions)
+                .then(response => {
+                    return response.json()
+                })
+                .then(result => {
+                    const detailBody = document.getElementById('detailBody');
+                    detailBody.innerHTML = '';
+
+                    for (let i = 0; i < result.data.length; i++) {
+                        const link = result.data[i];
+                        console.log(link);
+                        const shortLink = `${link.domain}${link.short_link}`;
+                        const imageElement = document.createElement('img');
+                        imageElement.src = link.icon || '/imgs/www-icon.png';
+                        let HTML = `
+                            <tr>
+                                <td class="img-icon">${imageElement.outerHTML}</td>
+                                <td class="blur-link">
+                                    <a href="${link.original_link}">${link.original_link}</a>
+                                </td>
+                                <td onclick="redirectLink('${shortLink}')" style="cursor: pointer;">${shortLink}</td>
+                                <td class="blur-link">${link.title}</td>
+                                <td>${link.timestamp}</td>
+                            <tr>
+                        `;
+                        detailBody.innerHTML += HTML;
+                    }
+                })
+                .catch(error => {
+                    console.log('error', error)
+                });
+        }
+
+        function closeGetLinks() {
+            var overlay = document.getElementById("overlay");
+            overlay.style.display = "none";
+        }
+
+        function redirectLink(link) {
+            window.open(link, '_blank');
+        }
+
     </script>
 </body>
 

@@ -79,6 +79,13 @@
         color: #fff;
     }
 
+    .new-link-btn:hover {
+        background-color: #fff;
+        color: #022d94;
+        border-radius: 8px;
+        border: 1px solid #022d94;
+    }
+
     .logout-btn {
         display: flex;
         align-items: center;
@@ -94,13 +101,6 @@
         font-weight: 500;
         font-size: 16px;
         gap: 10px;
-    }
-
-    .new-link-btn:hover {
-        background-color: #fff;
-        color: #022d94;
-        border-radius: 8px;
-        border: 1px solid #022d94;
     }
 
     .logout-btn:hover {
