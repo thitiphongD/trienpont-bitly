@@ -29,7 +29,8 @@
             <br>
             <form>
                 <input id="signupEmail" type="email" placeholder="Email" required autocomplete="signup-email">
-                <input id="signupPassword" type="password" placeholder="Password" required autocomplete="signup-password">
+                <input id="signupPassword" type="password" placeholder="Password" required
+                    autocomplete="signup-password">
                 <input id="signupConfirmPassword" type="password" placeholder="Confirm Password" required
                     autocomplete="confirm-password">
             </form>
@@ -47,6 +48,17 @@
             <p>Your Email or Password is Incorrect!</p>
             <div style="text-align: right;">
                 <button class="close-btn" onclick="closePopup();">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="loader" id="loader">
+        <div class="circ">
+            <div class="load">Loading . . . </div>
+            <div class="hands"></div>
+            <div class="body"></div>
+            <div class="head">
+                <div class="eye"></div>
             </div>
         </div>
     </div>

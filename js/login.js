@@ -30,6 +30,7 @@ function closePopup() {
 }
 
 function Login() {
+    showLoader();
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
@@ -53,7 +54,7 @@ function Login() {
     fetch("https://thity-api.cleverapps.io/login", requestOptions)
         .then(response => response.json())
         .then(result => {
-            console.log(result)
+            hideLoader();
             if (result.code === 200 && result.role === 'User') {
                 localStorage.setItem('email', result.email);
                 window.location.href = "home.html";
@@ -79,6 +80,8 @@ passwordInput.addEventListener('keydown', function (event) {
 
 
 function Register() {
+    showLoader();
+
     const signupEmail = document.getElementById('signupEmail').value;
     const signupPassword = document.getElementById('signupPassword').value;
     const signupConfirmPassword = document.getElementById('signupConfirmPassword').value;
@@ -101,6 +104,7 @@ function Register() {
 
     fetch("https://thity-api.cleverapps.io/register", requestOptions)
         .then(response => {
+            hideLoader();
             return response.json()
         })
         .then(result => {
@@ -112,6 +116,16 @@ function Register() {
         .catch(error => {
             console.log('error', error)
         });
+}
+
+function showLoader() {
+    const loader = document.getElementById('loader');
+    loader.style.display = 'block';
+}
+
+function hideLoader() {
+    const loader = document.getElementById('loader');
+    loader.style.display = 'none';
 }
 
 localStorage.removeItem('email');

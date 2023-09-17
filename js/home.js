@@ -75,6 +75,8 @@ fetch("https://thity-api.cleverapps.io/getLink", requestOptions)
 
 
 function createLink() {
+    showLoader();
+
     const newDestination = document.getElementById('newDestination').value;
     const newTitle = document.getElementById('newTitle').value;
     const newBackHalf = document.getElementById('newBackHalf').value;
@@ -98,10 +100,10 @@ function createLink() {
 
     fetch("https://thity-api.cleverapps.io/shortLink", requestOptions)
         .then(response => {
+            hideLoader();
             return response.json()
         })
         .then(result => {
-            console.log(result)
             if (result.code === 400) {
                 const errorMessage = result.message;
                 openCreateLinkFail(errorMessage)
@@ -373,4 +375,14 @@ function closeCreateLinkFail() {
 
 function toErrorPage() {
     window.open("/410.html", '_blank');
+}
+
+function showLoader() {
+    const loader = document.getElementById('loader');
+    loader.style.display = 'block';
+}
+
+function hideLoader() {
+    const loader = document.getElementById('loader');
+    loader.style.display = 'none';
 }
