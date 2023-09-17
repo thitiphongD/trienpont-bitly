@@ -74,7 +74,8 @@
         cursor: pointer;
     }
 
-    p, a {
+    p,
+    a {
         color: #15202E;
     }
 
@@ -153,7 +154,7 @@
         border: 1px solid #15202E;
         padding: 10px;
         vertical-align: middle;
-        font-size: 12px;
+        font-size: 14px;
     }
 
     tr:nth-child(even) {
@@ -186,6 +187,28 @@
     }
 
     .close-btn:hover {
+        background-color: #fff;
+        color: #F90B31;
+        border-radius: 8px;
+        border: 1px solid #F90B31;
+    }
+
+    .delete-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 80px;
+        height: 40px;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        background-color: #F90B31;
+        color: #fff;
+        font-size: 14px;
+        gap: 10px;
+    }
+
+    .delete-btn:hover {
         background-color: #fff;
         color: #F90B31;
         border-radius: 8px;
@@ -283,8 +306,8 @@
                     const user = result.data[i];
                     let HTML;
                     HTML = `
-                        <div class="card-user" onclick="openGetLinks('${user.email}')">
-                            <div class="card-flex">
+                        <div class="card-user">
+                            <div class="card-flex" onclick="openGetLinks('${user.email}')">
                                <div class="key">
                                     <p>ID</p>
                                     <p>Email</p>
@@ -298,13 +321,19 @@
                                     <p>${user.role}</p>
                                 </div>
                             </div>
+                            <div style="display: flex; justify-content: end;">
+                                <button class="delete-btn" onclick="deleteUser(${user.id});">
+                                    <i style="color: #fff;" class="material-icons">delete</i>
+                                </button>
+                            </div>
                         </div>
                     `;
                     usersContainer.innerHTML += HTML;
                 }
             })
             .catch(error => {
-                console.log('error', error)
+                console.log('error', error);
+                loader.style.display = 'none';
             });
 
         function openGetLinks(email) {
@@ -335,7 +364,6 @@
 
                     for (let i = 0; i < result.data.length; i++) {
                         const link = result.data[i];
-                        console.log(link);
                         const shortLink = `${link.domain}${link.short_link}`;
                         const imageElement = document.createElement('img');
                         imageElement.src = link.icon || '/imgs/www-icon.png';
@@ -351,11 +379,17 @@
                             <tr>
                         `;
                         detailBody.innerHTML += HTML;
+
                     }
                 })
                 .catch(error => {
-                    console.log('error', error)
+                    console.log('error', error);
+                    loader.style.display = 'none';
                 });
+        }
+
+        function deleteUser(id) {
+            alert(id);
         }
 
         function closeGetLinks() {
