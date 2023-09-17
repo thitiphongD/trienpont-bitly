@@ -29,6 +29,20 @@ function closePopup() {
     window.location.reload();
 }
 
+function openFailPopup(error) {
+    var openFailPopup = document.getElementById('failPopup');
+    var errorMessageElement = document.getElementById('errorMessage');
+    errorMessageElement.textContent = error;
+
+    openFailPopup.style.display = 'block';
+}
+
+function closeFailPopup() {
+    var closeFailPopup = document.getElementById('failPopup');
+    closeFailPopup.style.display = 'none';
+    window.location.reload();
+}
+
 function Login() {
     showLoader();
     const email = document.getElementById('email').value;
@@ -109,6 +123,10 @@ function Register() {
         })
         .then(result => {
             console.log(result)
+            if (result.code === 400) {
+                openFailPopup(result.message);
+            }
+
             if (result.code === 200) {
                 window.location.reload();
             }
