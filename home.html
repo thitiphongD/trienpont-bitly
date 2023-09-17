@@ -89,11 +89,35 @@
         color: #fff;
     }
 
+    .logout-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 140px;
+        height: 40px;
+        gap: 5px;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        background-color: #F90B31;
+        color: #fff;
+        font-weight: 500;
+        font-size: 16px;
+        gap: 10px;
+    }
+
     .new-link-btn:hover {
         background-color: #fff;
         color: #022d94;
         border-radius: 8px;
         border: 1px solid #022d94;
+    }
+
+    .logout-btn:hover {
+        background-color: #fff;
+        color: #F90B31;
+        border-radius: 8px;
+        border: 1px solid #F90B31;
     }
 
     .dropdown-content {
@@ -625,15 +649,23 @@
                     <i class="material-icons">qr_code</i>
                     <p>QR Codes</p>
                 </div>
-                <div class="menu-bar" id="linkinbio" onclick="showContent('content-linkInBio')">
+
+
+                <button class="logout-btn" onclick="window.location.href = '/login.html'">
+                    Logout
+                    <i class="material-icons">exit_to_app</i>
+                </button>
+
+                <!-- <div class="menu-bar" id="linkinbio" onclick="showContent('content-linkInBio')">
                     <i class="material-icons">person</i>
                     <p>Link-in-bio</p>
-                </div>
+                </div> -->
             </div>
         </div>
         <div class="profile-box">
             <p id="user-email"></p>
         </div>
+
     </header>
 
     <main>
@@ -684,7 +716,8 @@
         <div id="content-qrCodes" style="display: none;">
             <h2>QR Codes</h2>
             <br>
-            <div class="qrCodes-card">
+            <h4>Coming soon..</h4>
+            <!-- <div class="qrCodes-card">
                 <img src="/imgs/qrcode.svg" id="qrCodeImage">
                 <div>
                     <div style="display: flex; align-items: center; gap: 12px;">
@@ -714,7 +747,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
 
 
