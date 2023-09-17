@@ -887,6 +887,10 @@
 
     <script>
 
+        if (!localStorage.getItem('email')) {
+            window.location.href = "/login.html";
+        }
+          
         const email = localStorage.getItem('email');
 
         if (email) {
