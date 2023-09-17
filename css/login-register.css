@@ -46,7 +46,7 @@ input {
 }
 
 button {
-    background-color: #4169E0;
+    background-color: #022d94;
     color: #fff;
     border: none;
     width: 120px;
@@ -57,8 +57,8 @@ button {
 
 button:hover {
     background-color: #fff;
-    color: #4169E0;
-    border: #4169E0 1px solid;
+    color: #022d94;
+    border: #022d94 1px solid;
 }
 
 .register {
