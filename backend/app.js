@@ -5,15 +5,17 @@ const shortid = require('shortid');
 const mysql = require("mysql2/promise");
 const cors = require('cors');
 const fetch = require('node-fetch');
+const qr = require('qrcode');
+const { createReadStream } = require('fs');
 const { parse } = require('node-html-parser');
 app.use(express.json());
 app.use(cors());
 
 const pool = mysql.createPool({
-    host: '127.0.0.1',
-    user: 'root',
-    password: 'password',
-    database: 'my_project',
+    host: 'buuuikfhqw5l0acqlcy2-mysql.services.clever-cloud.com',
+    user: 'uqjnic7dnnlbtjgq',
+    password: 'jfD5NPBmRX4tPwA6VTt2',
+    database: 'buuuikfhqw5l0acqlcy2',
     waitForConnections: true
 });
 console.log('Connected to MySQL database');
